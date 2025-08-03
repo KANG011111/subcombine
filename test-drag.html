@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拖放測試</title>
+    <style>
+        .drop-zone {
+            width: 400px;
+            height: 200px;
+            border: 3px dashed #007bff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 50px auto;
+            background: #f8f9ff;
+        }
+        .drop-zone.dragover {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .file-list {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .file-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">多檔案拖放測試</h1>
+    
+    <div class="drop-zone" id="dropZone">
+        <p>拖放多個 .srt 檔案到此處</p>
+    </div>
+    
+    <div class="file-list" id="fileList">
+        <h3>檔案列表：</h3>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileList = document.getElementById('fileList');
+        let files = [];
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            console.log('拖放事件觸發');
+            console.log('檔案數量:', e.dataTransfer.files.length);
+            console.log('檔案列表:', Array.from(e.dataTransfer.files).map(f => f.name));
+            
+            const srtFiles = Array.from(e.dataTransfer.files).filter(file => 
+                file.name.toLowerCase().endsWith('.srt'));
+                
+            console.log('SRT檔案:', srtFiles.map(f => f.name));
+            
+            for (const file of srtFiles) {
+                if (!files.some(f => f.name === file.name)) {
+                    files.push(file);
+                }
+            }
+            
+            updateFileList();
+        });
+
+        function updateFileList() {
+            const html = files.map((file, index) => 
+                `<div class="file-item">${index + 1}. ${file.name} (${file.size} bytes)</div>`
+            ).join('');
+            
+            fileList.innerHTML = `<h3>檔案列表 (${files.length})：</h3>` + html;
+        }
+    </script>
+</body>
+</html>

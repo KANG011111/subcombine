@@ -1,0 +1,19 @@
+1
+00:00:00,500 --> 00:00:03,200
+Welcome to the OpenAI Podcast
+
+2
+00:00:04,000 --> 00:00:07,500
+This is part one of our discussion
+
+3
+00:00:08,300 --> 00:00:12,100
+About AI transforming education
+
+4
+00:00:13,000 --> 00:00:16,800
+With Leah Belsky as our guest
+
+5
+00:00:17,500 --> 00:00:20,000
+Let's begin the conversation

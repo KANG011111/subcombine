@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>檔案選擇器測試</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px; 
+        }
+        .test-section { 
+            margin: 30px 0; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+        }
+        button { 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+        .file-list { 
+            margin-top: 15px; 
+            padding: 10px; 
+            background: #f8f9fa; 
+            border-radius: 4px; 
+        }
+        .instruction {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <h1>檔案選擇器多選測試</h1>
+    
+    <div class="instruction">
+        <strong>使用方法：</strong><br>
+        • Windows: 按住 <kbd>Ctrl</kbd> 點擊多個檔案<br>
+        • Mac: 按住 <kbd>Cmd</kbd> 點擊多個檔案<br>
+        • 或選擇一個範圍: 按住 <kbd>Shift</kbd> 點擊
+    </div>
+
+    <div class="test-section">
+        <h3>測試 1: 標準多選</h3>
+        <input type="file" id="fileInput1" multiple accept=".srt">
+        <div class="file-list" id="fileList1">未選擇檔案</div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 2: 按鈕觸發多選</h3>
+        <button onclick="document.getElementById('fileInput2').click()">選擇多個檔案</button>
+        <input type="file" id="fileInput2" multiple accept=".srt" style="display: none;">
+        <div class="file-list" id="fileList2">未選擇檔案</div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 3: 累加模式 (模擬主程式)</h3>
+        <button onclick="document.getElementById('fileInput3').click()">選擇檔案 (可重複)</button>
+        <input type="file" id="fileInput3" multiple accept=".srt" style="display: none;">
+        <button onclick="clearFiles()">清除所有</button>
+        <div class="file-list" id="fileList3">未選擇檔案</div>
+    </div>
+
+    <script>
+        let accumulatedFiles = [];
+
+        // 測試 1: 標準多選
+        document.getElementById('fileInput1').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            console.log('測試1 - 選擇的檔案數量:', files.length);
+            console.log('測試1 - 檔案列表:', files.map(f => f.name));
+            
+            document.getElementById('fileList1').innerHTML = 
+                files.length > 0 ? 
+                files.map((f, i) => `${i+1}. ${f.name} (${f.size} bytes)`).join('<br>') :
+                '未選擇檔案';
+        });
+
+        // 測試 2: 按鈕觸發多選
+        document.getElementById('fileInput2').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            console.log('測試2 - 選擇的檔案數量:', files.length);
+            console.log('測試2 - 檔案列表:', files.map(f => f.name));
+            
+            document.getElementById('fileList2').innerHTML = 
+                files.length > 0 ? 
+                files.map((f, i) => `${i+1}. ${f.name} (${f.size} bytes)`).join('<br>') :
+                '未選擇檔案';
+        });
+
+        // 測試 3: 累加模式
+        document.getElementById('fileInput3').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            console.log('測試3 - 本次選擇的檔案數量:', files.length);
+            console.log('測試3 - 本次檔案列表:', files.map(f => f.name));
+            
+            // 累加檔案，避免重複
+            for (const file of files) {
+                if (!accumulatedFiles.some(f => f.name === file.name)) {
+                    accumulatedFiles.push(file);
+                }
+            }
+            
+            console.log('測試3 - 累積總檔案數量:', accumulatedFiles.length);
+            console.log('測試3 - 累積檔案列表:', accumulatedFiles.map(f => f.name));
+            
+            document.getElementById('fileList3').innerHTML = 
+                accumulatedFiles.length > 0 ? 
+                accumulatedFiles.map((f, i) => `${i+1}. ${f.name} (${f.size} bytes)`).join('<br>') :
+                '未選擇檔案';
+                
+            // 清空 input 以允許重複選擇
+            e.target.value = '';
+        });
+
+        function clearFiles() {
+            accumulatedFiles = [];
+            document.getElementById('fileList3').innerHTML = '未選擇檔案';
+            console.log('測試3 - 已清除所有檔案');
+        }
+    </script>
+</body>
+</html>

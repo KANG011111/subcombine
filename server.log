@@ -1,0 +1,14 @@
+::1 - - [02/Aug/2025 13:36:02] "GET /test-drag.html HTTP/1.1" 200 -
+::1 - - [02/Aug/2025 13:36:15] code 404, message File not found
+::1 - - [02/Aug/2025 13:36:15] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::1 - - [02/Aug/2025 13:38:10] "GET / HTTP/1.1" 304 -
+::1 - - [02/Aug/2025 13:38:10] "GET /css/style.css HTTP/1.1" 304 -
+::1 - - [02/Aug/2025 13:38:10] "GET /js/script.js HTTP/1.1" 304 -
+::1 - - [02/Aug/2025 13:38:38] code 404, message File not found
+::1 - - [02/Aug/2025 13:38:38] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::1 - - [02/Aug/2025 13:41:44] "GET /test-input.html HTTP/1.1" 200 -
+::1 - - [02/Aug/2025 13:42:22] code 404, message File not found
+::1 - - [02/Aug/2025 13:42:22] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::1 - - [02/Aug/2025 13:47:26] "GET / HTTP/1.1" 304 -
+::1 - - [02/Aug/2025 13:47:26] "GET /css/style.css HTTP/1.1" 304 -
+::1 - - [02/Aug/2025 13:47:26] "GET /js/script.js HTTP/1.1" 200 -

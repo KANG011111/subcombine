@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字幕合併工具 - Subtitle Merger</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 標題區域 -->
+        <header class="header">
+            <h1>字幕合併工具</h1>
+            <p class="subtitle">將多段 SRT 字幕檔合併成完整字幕</p>
+            <button class="help-btn" onclick="toggleHelp()">使用說明</button>
+        </header>
+
+        <!-- 使用說明區域 -->
+        <div class="help-section" id="helpSection" style="display: none;">
+            <div class="help-content">
+                <h3>使用方式</h3>
+                <ol>
+                    <li>拖放或選擇多個 .srt 字幕檔案</li>
+                    <li>檔案會自動按檔名數字排序</li>
+                    <li>可在預覽區域調整段落間隔</li>
+                    <li>點擊「開始合併」生成完整字幕</li>
+                </ol>
+                <p><strong>支援格式：</strong>part1.srt, video_part2.srt, segment3.srt 等</p>
+            </div>
+        </div>
+
+        <!-- 檔案上傳區域 -->
+        <div class="upload-section">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-content">
+                    <div class="upload-icon">📁</div>
+                    <h3>拖放字幕檔案到此處</h3>
+                    <p>或點擊下方按鈕選擇檔案</p>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        選擇字幕檔案 (可多選或分次上傳)
+                    </button>
+                    <input type="file" id="fileInput" multiple accept=".srt" style="display: none;">
+                    <p class="file-info">支援格式：.srt</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 檔案列表區域 -->
+        <div class="file-list-section" id="fileListSection" style="display: none;">
+            <h3>已選擇的檔案</h3>
+            <div class="file-list" id="fileList">
+                <!-- 檔案項目會動態加入 -->
+            </div>
+            <div class="list-actions">
+                <button class="clear-btn" onclick="clearFiles()">清除所有檔案</button>
+                <button class="sort-btn" onclick="sortFiles()">重新排序</button>
+            </div>
+        </div>
+
+        <!-- 預覽區域 -->
+        <div class="preview-section" id="previewSection" style="display: none;">
+            <h3>合併預覽</h3>
+            <div class="timeline-preview" id="timelinePreview">
+                <!-- 時間軸預覽會動態生成 -->
+            </div>
+            <div class="total-info" id="totalInfo">
+                <div class="info-item">
+                    <span class="label">總時長：</span>
+                    <span class="value" id="totalDuration">--:--:--</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">總字幕數：</span>
+                    <span class="value" id="totalSubtitles">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定區域 -->
+        <div class="settings-section" id="settingsSection" style="display: none;">
+            <h3>輸出設定</h3>
+            <div class="setting-item">
+                <label for="outputFilename">輸出檔名：</label>
+                <input type="text" id="outputFilename" value="merged.srt" placeholder="請輸入檔名">
+            </div>
+            <div class="setting-item">
+                <label>
+                    <input type="checkbox" id="preserveEmpty" checked>
+                    保留空白字幕
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="defaultGap">預設段落間隔（秒）：</label>
+                <input type="number" id="defaultGap" value="0.5" step="0.1" min="0" max="10">
+            </div>
+        </div>
+
+        <!-- 進度區域 -->
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <h3>處理進度</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span class="current-step" id="currentStep">準備開始...</span>
+                <span class="progress-percent" id="progressPercent">0%</span>
+            </div>
+            <div class="step-details" id="stepDetails">
+                <!-- 步驟詳情會動態生成 -->
+            </div>
+        </div>
+
+        <!-- 操作區域 -->
+        <div class="action-section" id="actionSection" style="display: none;">
+            <button class="merge-btn" id="mergeBtn" onclick="startMerge()">
+                開始合併
+            </button>
+            <button class="download-btn" id="downloadBtn" style="display: none;" onclick="downloadResult()">
+                下載結果
+            </button>
+        </div>
+
+        <!-- 結果區域 -->
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="success-message">
+                <div class="success-icon">✅</div>
+                <h3>合併完成！</h3>
+                <p>已成功合併 <span id="mergedFileCount">0</span> 個字幕檔案</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 間隔調整對話框 -->
+    <div class="modal" id="gapModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>調整段落間隔</h4>
+                <button class="close-btn" onclick="closeGapModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="gap-info">
+                    <p>調整 <span id="gapFromFile"></span> 和 <span id="gapToFile"></span> 之間的間隔</p>
+                </div>
+                <div class="gap-input">
+                    <label for="gapValue">間隔時間（秒）：</label>
+                    <input type="number" id="gapValue" step="0.1" min="0" max="60" value="0.5">
+                </div>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setGapValue(0)">無間隔</button>
+                    <button class="preset-btn" onclick="setGapValue(0.5)">0.5秒</button>
+                    <button class="preset-btn" onclick="setGapValue(1)">1秒</button>
+                    <button class="preset-btn" onclick="setGapValue(2)">2秒</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeGapModal()">取消</button>
+                <button class="confirm-btn" onclick="confirmGapAdjustment()">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 載入CSS和JavaScript -->
+    <script src="js/script.js"></script>
+</body>
+</html>
