@@ -1,0 +1,22 @@
+# 測試檔案
+test-*.srt
+testsrt/
+*.log
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# 編輯器檔案
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 暫存檔案
+*.tmp
+*.temp
+
+# Node.js (如果未來使用)
+node_modules/
+npm-debug.log*

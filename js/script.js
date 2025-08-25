@@ -118,6 +118,7 @@ class SubtitleMerger {
         this.showSection('previewSection');
         this.showSection('settingsSection');
         this.showSection('actionSection');
+        this.showSection('convertSection');
     }
 
     readFile(file) {
@@ -328,6 +329,7 @@ class SubtitleMerger {
             this.hideSection('previewSection');
             this.hideSection('settingsSection');
             this.hideSection('actionSection');
+            this.hideSection('convertSection');
         } else {
             this.updateFileList();
             this.updatePreview();
@@ -509,9 +511,12 @@ function clearFiles() {
         merger.hideSection('previewSection');
         merger.hideSection('settingsSection');
         merger.hideSection('actionSection');
+        merger.hideSection('convertSection');
         merger.hideSection('progressSection');
         merger.hideSection('resultSection');
         document.getElementById('downloadBtn').style.display = 'none';
+        document.getElementById('downloadTextBtn').style.display = 'none';
+        document.getElementById('textPreview').style.display = 'none';
     }
 }
 
@@ -555,4 +560,87 @@ function confirmGapAdjustment() {
     merger.gaps[merger.currentGapIndex] = gapValue * 1000;
     merger.updatePreview();
     closeGapModal();
+}
+
+// SRT 轉文字功能
+function convertToText() {
+    if (merger.files.length === 0) {
+        alert('請先上傳 SRT 檔案');
+        return;
+    }
+
+    const removeEmptyLines = document.getElementById('removeEmptyLines').checked;
+    let allSubtitles = [];
+    let currentTimeOffset = 0;
+
+    // 收集所有字幕，按照合併邏輯處理時間偏移
+    merger.files.forEach((file, fileIndex) => {
+        file.subtitles.forEach(subtitle => {
+            if (removeEmptyLines && subtitle.isEmpty) {
+                return; // 跳過空白字幕
+            }
+
+            const adjustedStartTime = subtitle.startTime + currentTimeOffset;
+            allSubtitles.push({
+                startTime: adjustedStartTime,
+                text: subtitle.text
+            });
+        });
+
+        // 加上檔案時長和間隔時間
+        currentTimeOffset += file.duration;
+        if (fileIndex < merger.files.length - 1) {
+            currentTimeOffset += merger.gaps[fileIndex];
+        }
+    });
+
+    // 按時間排序
+    allSubtitles.sort((a, b) => a.startTime - b.startTime);
+
+    // 生成帶時間戳記的文字
+    const textContent = allSubtitles.map(subtitle => {
+        const timeStamp = formatTimeForText(subtitle.startTime);
+        return `[${timeStamp}] ${subtitle.text}`;
+    }).join('\n\n');
+
+    // 顯示預覽
+    document.getElementById('textContent').value = textContent;
+    document.getElementById('textPreview').style.display = 'block';
+    document.getElementById('downloadTextBtn').style.display = 'inline-block';
+
+    // 儲存轉換結果供下載使用
+    merger.convertedText = textContent;
+}
+
+function downloadText() {
+    if (!merger.convertedText) {
+        alert('請先轉換文字');
+        return;
+    }
+
+    const outputFilename = document.getElementById('outputFilename').value.replace('.srt', '') + '.txt';
+    const blob = new Blob([merger.convertedText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = outputFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function formatTimeForText(milliseconds) {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    // 如果小於1小時，只顯示分:秒
+    if (hours === 0) {
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }

@@ -119,6 +119,37 @@
             </button>
         </div>
 
+        <!-- SRT 轉文字功能區域 -->
+        <div class="convert-section" id="convertSection" style="display: none;">
+            <h3>SRT 轉文字功能</h3>
+            <div class="convert-options">
+                <div class="option-item">
+                    <label>轉換格式：</label>
+                    <select id="textFormat">
+                        <option value="timestamp">帶時間戳記 [00:01:23] 內容</option>
+                    </select>
+                </div>
+                <div class="option-item">
+                    <label>
+                        <input type="checkbox" id="removeEmptyLines" checked>
+                        移除空白字幕
+                    </label>
+                </div>
+            </div>
+            <div class="convert-actions">
+                <button class="convert-btn" id="convertBtn" onclick="convertToText()">
+                    轉換為文字
+                </button>
+                <button class="download-text-btn" id="downloadTextBtn" style="display: none;" onclick="downloadText()">
+                    下載文字檔
+                </button>
+            </div>
+            <div class="text-preview" id="textPreview" style="display: none;">
+                <h4>文字預覽</h4>
+                <textarea id="textContent" readonly></textarea>
+            </div>
+        </div>
+
         <!-- 結果區域 -->
         <div class="result-section" id="resultSection" style="display: none;">
             <div class="success-message">
